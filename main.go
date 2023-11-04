@@ -152,4 +152,5 @@ type RedirectRecord struct {
 	UserEmail            string
 	EmailSubject         string
 	NumberOfTimesClicked int
+	UserId               string
 }

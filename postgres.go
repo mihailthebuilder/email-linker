@@ -110,12 +110,12 @@ func (p *Postgres) AddRedirect(ctx context.Context, request AddRedirectRequest) 
 func (p *Postgres) GetRedirectRecord(ctx context.Context, path string) (RedirectRecord, error) {
 	record := RedirectRecord{}
 	sql := `
-		SELECT l.original_url, u.email, l.number_of_times_clicked, l.email_subject 
+		SELECT l.original_url, u.email, l.number_of_times_clicked, l.email_subject, l.user_id
 		FROM links l
 		JOIN users u on l.user_id = u.user_id
 		WHERE redirect_path = $1
 	`
-	err := p.client.QueryRow(ctx, sql, path).Scan(&record.RedirectUrl, &record.UserEmail, &record.NumberOfTimesClicked, &record.EmailSubject)
+	err := p.client.QueryRow(ctx, sql, path).Scan(&record.RedirectUrl, &record.UserEmail, &record.NumberOfTimesClicked, &record.EmailSubject, &record.UserId)
 	return record, err
 }
 

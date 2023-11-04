@@ -29,14 +29,14 @@ func (r *Controller) RegisterUser(c *gin.Context) {
 	}
 
 	if exists {
-		log.Println("email exists: ", email)
+		log.Println("email exists:", email)
 		c.AbortWithStatusJSON(http.StatusBadRequest, "Email exists")
 		return
 	}
 
 	hashedPassword, err := generateHashedPassword(password)
 	if err != nil {
-		log.Println("error hashing password: ", err)
+		log.Println("error hashing password:", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -46,7 +46,7 @@ func (r *Controller) RegisterUser(c *gin.Context) {
 
 	err = r.Database.CreateUser(c, cur)
 	if err != nil {
-		log.Printf("error creating email %s: %s", email, err)
+		log.Printf("error creating user with email %s: %s", email, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

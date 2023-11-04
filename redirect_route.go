@@ -30,7 +30,7 @@ func (r *Controller) Redirect(c *gin.Context) {
 		log.Printf("fail to increment number of times link clicked: %s", err)
 	}
 
-	if record.NumberOfTimesClicked == 1 {
+	if record.NumberOfTimesClicked == 0 {
 		subject := "LinkUp link clicked"
 		content_template := "LinkUp link for URL %s inside email with subject '%s' has just been clicked for the 1st time!"
 		content := fmt.Sprintf(content_template, record.RedirectUrl, record.EmailSubject)
@@ -40,5 +40,7 @@ func (r *Controller) Redirect(c *gin.Context) {
 		if err != nil {
 			log.Printf("fail to notify %s that link %s was clicked: %s", record.UserEmail, record.RedirectUrl, err)
 		}
+
+		log.Printf("sent notification email to user with id %s", record.UserId)
 	}
 }
