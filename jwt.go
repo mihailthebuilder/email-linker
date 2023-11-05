@@ -27,7 +27,7 @@ type JwtClient struct {
 func (j *JwtClient) GenerateToken(userId string) (string, error) {
 	claims := Claims{}
 	claims.User.Id = userId
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(10 * time.Minute))
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return t.SignedString([]byte(j.Secret))
 }
