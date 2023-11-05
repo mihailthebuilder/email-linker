@@ -15,7 +15,7 @@ import (
 func runMigrations() {
 	log.Println("Running migrations (if applicable)...")
 
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", getEnv("USER"), getEnv("PASSWORD"), getEnv("NAME"), getEnv("HOST"), getEnv("PORT"))
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", getEnv("DB_USER"), getEnv("DB_PASSWORD"), getEnv("DB_NAME"), getEnv("DB_HOST"), getEnv("DB_PORT"))
 
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
