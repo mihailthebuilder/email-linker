@@ -10,31 +10,37 @@ import (
 )
 
 func (r *Controller) RegisterUser(c *gin.Context) {
-	email := c.PostForm("email")
-	password := c.PostForm("password")
+	var registerRequest struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
 
-	valid := emailAndPasswordAreValid(email, password)
+	if err := c.ShouldBindJSON(&registerRequest); err != nil {
+		log.Printf("invalid register request: %s", err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
-	if !valid {
-		log.Printf("invalid email %s or password %s", email, password)
+	if valid := emailAndPasswordAreValid(registerRequest.Email, registerRequest.Password); !valid {
+		log.Printf("invalid email %s or password %s", registerRequest.Email, registerRequest.Password)
 		c.AbortWithStatusJSON(http.StatusBadRequest, "Invalid email or password")
 		return
 	}
 
-	exists, err := r.Database.EmailExists(c, email)
+	exists, err := r.Database.EmailExists(c, registerRequest.Email)
 	if err != nil {
-		log.Printf("error checking email %s exists: %s", email, err)
+		log.Printf("error checking email %s exists: %s", registerRequest.Email, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	if exists {
-		log.Println("email exists:", email)
+		log.Println("email exists:", registerRequest.Email)
 		c.AbortWithStatusJSON(http.StatusBadRequest, "Email exists")
 		return
 	}
 
-	hashedPassword, err := generateHashedPassword(password)
+	hashedPassword, err := generateHashedPassword(registerRequest.Password)
 	if err != nil {
 		log.Println("error hashing password:", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -42,11 +48,11 @@ func (r *Controller) RegisterUser(c *gin.Context) {
 	}
 
 	code := r.RandomStringGenerator.Generate()
-	cur := CreateUserRequest{Email: email, Password: hashedPassword, VerificationCode: code}
+	cur := CreateUserRequest{Email: registerRequest.Email, Password: hashedPassword, VerificationCode: code}
 
 	err = r.Database.CreateUser(c, cur)
 	if err != nil {
-		log.Printf("error creating user with email %s: %s", email, err)
+		log.Printf("error creating user with email %s: %s", registerRequest.Email, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -55,10 +61,10 @@ func (r *Controller) RegisterUser(c *gin.Context) {
 	content_template := "Click this link to confirm your registration with LinkUp: %s/%s"
 	content := fmt.Sprintf(content_template, r.ConfirmationUri, code)
 
-	ser := SendEmailRequest{Email: email, Subject: subject, Content: content}
+	ser := SendEmailRequest{Email: registerRequest.Email, Subject: subject, Content: content}
 	err = r.Emailer.SendEmail(ser)
 	if err != nil {
-		log.Printf("error sending email confirmation to %s: %s", email, err)
+		log.Printf("error sending email confirmation to %s: %s", registerRequest.Email, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -96,7 +102,7 @@ func (r *Controller) LoginUser(c *gin.Context) {
 
 	result, err := r.Database.GetUser(c, loginRequest.Email)
 	if err != nil {
-		log.Printf("error fetching password for email %s: %s", loginRequest.Email, err)
+		log.Printf("error fetching user for email %s: %s", loginRequest.Email, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
