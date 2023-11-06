@@ -81,7 +81,7 @@ func (p *Postgres) GetUser(ctx context.Context, email string) (ResultForGetUserR
 	}
 
 	if err != nil {
-		return result, fmt.Errorf("error fetching password hash: %s", err)
+		return result, fmt.Errorf("error getting user from database: %s", err)
 	}
 
 	result.Found = true

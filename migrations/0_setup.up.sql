@@ -3,7 +3,7 @@ CREATE TABLE users (
     email TEXT,
     password_hash TEXT,
     verification_code TEXT,
-    is_verified BOOLEAN,
+    is_verified BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
