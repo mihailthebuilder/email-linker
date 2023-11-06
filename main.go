@@ -53,6 +53,8 @@ func runApplication() {
 		RedirectUrlAfterSuccessfulEmailVerification: getEnv("REDIRECT_URL_AFTER_SUCCESSFUL_EMAIL_VERIFICATION"),
 	}
 
+	baseUrl := getEnv("BASE_URL")
+
 	v1 := e.Group("/v1")
 	{
 		auth := v1.Group("/auth")
@@ -62,19 +64,23 @@ func runApplication() {
 				verify.GET("/:code", c.VerifyEmail)
 			}
 
-			c.ConfirmationUri = getEnv("BASE_URL") + verify.BasePath()
+			c.ConfirmationUri = baseUrl + verify.BasePath()
 			auth.POST("/register", c.RegisterUser)
 
 			auth.POST("/login", c.LoginUser)
 		}
+
+		redirect := v1.Group("/redirect")
+		{
+			redirect.GET("/:path", c.Redirect)
+		}
+		c.RedirectUri = baseUrl + redirect.BasePath()
 
 		user := v1.Group("/user")
 		{
 			user.Use(c.SetAuthenticatedUser)
 			user.POST("/tracklink", c.TrackLink)
 		}
-
-		v1.GET("/redirect/:path", c.Redirect)
 	}
 
 	e.Run()
@@ -92,6 +98,7 @@ type Controller struct {
 	ConfirmationUri                             string
 	RedirectUrlAfterSuccessfulEmailVerification string
 	RandomStringGenerator                       RandomStringGenerator
+	RedirectUri                                 string
 }
 
 type RandomStringGenerator interface {

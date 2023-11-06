@@ -87,7 +87,7 @@ func (r *Controller) TrackLink(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusCreated, path)
+	c.String(http.StatusCreated, fmt.Sprintf("%s/%s", r.RedirectUri, path))
 }
 
 func getUserIdFromContext(c *gin.Context) (string, error) {
