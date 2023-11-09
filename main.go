@@ -53,6 +53,11 @@ func runApplication() {
 
 	baseUrl := getEnv("BASE_URL")
 
+	redirect := e.Group("/r")
+	{
+		redirect.GET("/:path", c.Redirect)
+	}
+
 	v1 := e.Group("/v1")
 	{
 		auth := v1.Group("/auth")
@@ -68,10 +73,6 @@ func runApplication() {
 			auth.POST("/login", c.LoginUser)
 		}
 
-		redirect := v1.Group("/r")
-		{
-			redirect.GET("/:path", c.Redirect)
-		}
 		c.RedirectUri = baseUrl + redirect.BasePath()
 
 		user := v1.Group("/user")
