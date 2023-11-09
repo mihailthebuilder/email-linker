@@ -16,18 +16,24 @@ func (r *Controller) Redirect(c *gin.Context) {
 		return
 	}
 
-	record, err := r.Database.GetRedirectRecord(c, path)
+	url, err := r.Database.GetRedirectUrl(c, path)
 	if err != nil {
 		log.Printf("fail to get redirect url for path %s: %s", path, err)
 		c.Redirect(http.StatusTemporaryRedirect, r.ErrorRedirectUrl)
 		return
 	}
 
-	c.Redirect(http.StatusTemporaryRedirect, record.RedirectUrl)
+	c.Redirect(http.StatusTemporaryRedirect, url)
 
-	err = r.Database.IncrementNumberOfTimesLinkClicked(c, path)
+	record, err := r.Database.GetRedirectRecord(c, path)
 	if err != nil {
-		log.Printf("fail to increment number of times link clicked: %s", err)
+		log.Printf("fail to get redirect data for path %s: %s", path, err)
+		return
+	}
+
+	err = r.Database.AddLinkClick(c, record.LinkId)
+	if err != nil {
+		log.Printf("fail to add link click for link with id %s: %s", record.LinkId, err)
 	}
 
 	if record.NumberOfTimesClicked == 0 {
@@ -41,6 +47,6 @@ func (r *Controller) Redirect(c *gin.Context) {
 			log.Printf("fail to notify %s that link %s was clicked: %s", record.UserEmail, record.RedirectUrl, err)
 		}
 
-		log.Printf("sent notification email to user with id %s", record.UserId)
+		log.Printf("sent notification email for link with id %s", record.LinkId)
 	}
 }

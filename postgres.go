@@ -107,24 +107,43 @@ func (p *Postgres) AddRedirect(ctx context.Context, request AddRedirectRequest) 
 	return nil
 }
 
+func (p *Postgres) GetRedirectUrl(ctx context.Context, path string) (string, error) {
+	var url string
+	sql := `
+		SELECT original_url
+		FROM links l
+		WHERE redirect_path = $1
+	`
+	err := p.client.QueryRow(ctx, sql, path).Scan(&url)
+	return url, err
+}
+
 func (p *Postgres) GetRedirectRecord(ctx context.Context, path string) (RedirectRecord, error) {
 	record := RedirectRecord{}
 	sql := `
-		SELECT l.original_url, u.email, l.number_of_times_clicked, l.email_subject, l.user_id
-		FROM links l
-		JOIN users u on l.user_id = u.user_id
+		SELECT l.original_url, u.email, COUNT(c.click_id), l.email_subject, l.link_id
+			FROM links l
+			JOIN users u on l.user_id = u.user_id
+			LEFT JOIN clicks c on l.link_id = c.link_id
 		WHERE redirect_path = $1
+		GROUP BY l.original_url, u.email, l.email_subject, l.link_id
 	`
-	err := p.client.QueryRow(ctx, sql, path).Scan(&record.RedirectUrl, &record.UserEmail, &record.NumberOfTimesClicked, &record.EmailSubject, &record.UserId)
+	err := p.client.QueryRow(ctx, sql, path).Scan(
+		&record.RedirectUrl,
+		&record.UserEmail,
+		&record.NumberOfTimesClicked,
+		&record.EmailSubject,
+		&record.LinkId,
+	)
 	return record, err
 }
 
-func (p *Postgres) IncrementNumberOfTimesLinkClicked(ctx context.Context, path string) error {
-	sql := `UPDATE links SET number_of_times_clicked = number_of_times_clicked + 1 WHERE redirect_path = $1`
+func (p *Postgres) AddLinkClick(ctx context.Context, linkId string) error {
+	sql := `INSERT INTO clicks (link_id) VALUES ($1)`
 
-	tag, err := p.client.Exec(ctx, sql, path)
+	tag, err := p.client.Exec(ctx, sql, linkId)
 	if err != nil {
-		return err
+		return fmt.Errorf("error executing query: %s", err)
 	}
 
 	if affected := tag.RowsAffected(); affected != 1 {

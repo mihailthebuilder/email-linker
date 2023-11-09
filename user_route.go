@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dchest/uniuri"
 	"github.com/gin-gonic/gin"
 )
 
@@ -71,7 +72,7 @@ func (r *Controller) TrackLink(c *gin.Context) {
 		return
 	}
 
-	path := r.RandomStringGenerator.Generate()
+	path := uniuri.NewLen(10)
 
 	redirectRequest := AddRedirectRequest{
 		UserId:       userId,

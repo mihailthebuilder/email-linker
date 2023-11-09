@@ -43,13 +43,11 @@ func runApplication() {
 	jwtClient := newJwtClient()
 
 	sendgrid := newSendGridClient()
-	uniUri := newUniUriStringGenerator()
 
 	c := Controller{
-		Database:              db,
-		TokenClient:           jwtClient,
-		Emailer:               sendgrid,
-		RandomStringGenerator: uniUri,
+		Database:    db,
+		TokenClient: jwtClient,
+		Emailer:     sendgrid,
 		RedirectUrlAfterSuccessfulEmailVerification: getEnv("REDIRECT_URL_AFTER_SUCCESSFUL_EMAIL_VERIFICATION"),
 	}
 
@@ -97,12 +95,7 @@ type Controller struct {
 	ErrorRedirectUrl                            string
 	ConfirmationUri                             string
 	RedirectUrlAfterSuccessfulEmailVerification string
-	RandomStringGenerator                       RandomStringGenerator
 	RedirectUri                                 string
-}
-
-type RandomStringGenerator interface {
-	Generate() string
 }
 
 type Database interface {
@@ -112,7 +105,8 @@ type Database interface {
 	GetUser(ctx context.Context, email string) (ResultForGetUserRequest, error)
 	AddRedirect(ctx context.Context, request AddRedirectRequest) error
 	GetRedirectRecord(ctx context.Context, path string) (RedirectRecord, error)
-	IncrementNumberOfTimesLinkClicked(ctx context.Context, path string) error
+	GetRedirectUrl(ctx context.Context, path string) (string, error)
+	AddLinkClick(ctx context.Context, linkId string) error
 	ConfirmEmailVerified(ctx context.Context, code string) error
 }
 
@@ -159,5 +153,5 @@ type RedirectRecord struct {
 	UserEmail            string
 	EmailSubject         string
 	NumberOfTimesClicked int
-	UserId               string
+	LinkId               string
 }

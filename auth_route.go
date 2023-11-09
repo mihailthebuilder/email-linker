@@ -6,14 +6,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
+type AuthCreds struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func (r *Controller) RegisterUser(c *gin.Context) {
-	var registerRequest struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+	registerRequest := AuthCreds{}
 
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
 		log.Printf("invalid register request: %s", err)
@@ -47,7 +50,7 @@ func (r *Controller) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	code := r.RandomStringGenerator.Generate()
+	code := uuid.New().String()
 	cur := CreateUserRequest{Email: registerRequest.Email, Password: hashedPassword, VerificationCode: code}
 
 	err = r.Database.CreateUser(c, cur)
@@ -89,10 +92,7 @@ func generateHashedPassword(password string) (string, error) {
 }
 
 func (r *Controller) LoginUser(c *gin.Context) {
-	var loginRequest struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+	loginRequest := AuthCreds{}
 
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
 		log.Println("invalid request: ", loginRequest)
