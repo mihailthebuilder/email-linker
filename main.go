@@ -68,7 +68,7 @@ func runApplication() {
 			auth.POST("/login", c.LoginUser)
 		}
 
-		redirect := v1.Group("/redirect")
+		redirect := v1.Group("/r")
 		{
 			redirect.GET("/:path", c.Redirect)
 		}
