@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 )
 
 func lengthOfString(input string) int {
@@ -17,4 +18,12 @@ func getEnv(env string) string {
 	}
 
 	return val
+}
+
+func getInt(val string) int {
+	valInt, err := strconv.Atoi(val)
+	if err != nil {
+		log.Fatalf("couldn't convert val = %s from string to int: %s", val, err)
+	}
+	return valInt
 }

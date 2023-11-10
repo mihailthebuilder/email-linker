@@ -40,14 +40,12 @@ func runApplication() {
 	db := getPostgresDb()
 	defer db.Close()
 
-	jwtClient := newJwtClient()
-
-	sendgrid := newSendGridClient()
-
 	c := Controller{
-		Database:    db,
-		TokenClient: jwtClient,
-		Emailer:     sendgrid,
+		Database:               db,
+		TokenClient:            newJwtClient(),
+		Emailer:                newSendGridClient(),
+		RedirectPathLength:     getInt(getEnv("REDIRECT_PATH_LENGTH")),
+		MaxNumberOfEmailAlerts: getInt(getEnv("MAX_NUMBER_OF_EMAIL_ALERTS")),
 		RedirectUrlAfterSuccessfulEmailVerification: getEnv("REDIRECT_URL_AFTER_SUCCESSFUL_EMAIL_VERIFICATION"),
 	}
 
@@ -97,6 +95,8 @@ type Controller struct {
 	ConfirmationUri                             string
 	RedirectUrlAfterSuccessfulEmailVerification string
 	RedirectUri                                 string
+	RedirectPathLength                          int
+	MaxNumberOfEmailAlerts                      int
 }
 
 type Database interface {

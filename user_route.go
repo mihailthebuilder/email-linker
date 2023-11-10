@@ -72,7 +72,7 @@ func (r *Controller) TrackLink(c *gin.Context) {
 		return
 	}
 
-	path := uniuri.NewLen(10)
+	path := uniuri.NewLen(r.RedirectPathLength)
 
 	redirectRequest := AddRedirectRequest{
 		UserId:       userId,
