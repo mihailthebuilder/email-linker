@@ -74,9 +74,11 @@ func (r *Controller) TrackLink(c *gin.Context) {
 
 	path := uniuri.NewLen(r.RedirectPathLength)
 
+	url := addHttpsToUrlIfNotIncludedAlready(apiRequest.Url)
+
 	redirectRequest := AddRedirectRequest{
 		UserId:       userId,
-		Url:          apiRequest.Url,
+		Url:          url,
 		Path:         path,
 		EmailSubject: apiRequest.EmailSubject,
 	}
@@ -109,4 +111,23 @@ func getUserIdFromContext(c *gin.Context) (string, error) {
 type TrackLinkRequest struct {
 	Url          string `json:"url"`
 	EmailSubject string `json:"emailSubject"`
+}
+
+const HTTP_PREFIX = "http://"
+const HTTP_PREFIX_LENGTH = 7
+const HTTPS_PREFIX = "https://"
+const HTTPS_PREFIX_LENGTH = 8
+
+func addHttpsToUrlIfNotIncludedAlready(url string) string {
+	lengthOfUrl := lengthOfString(url)
+
+	if lengthOfUrl <= HTTPS_PREFIX_LENGTH {
+		return "https://" + url
+	}
+
+	if url[0:HTTPS_PREFIX_LENGTH] == HTTPS_PREFIX || url[0:HTTP_PREFIX_LENGTH] == HTTP_PREFIX {
+		return url
+	}
+
+	return "https://" + url
 }
