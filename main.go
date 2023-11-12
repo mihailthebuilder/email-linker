@@ -83,8 +83,12 @@ func runApplication() {
 	e.Run()
 }
 
-func allowAllOriginsForCORS(engine *gin.Engine) {
-	engine.Use(cors.Default())
+func allowAllOriginsForCORS(e *gin.Engine) {
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Content-Length", "Accept", "Authorization"}
+	e.Use(cors.New(config))
 }
 
 type Controller struct {
