@@ -46,7 +46,8 @@ func runApplication() {
 		Emailer:                newSendGridClient(),
 		RedirectPathLength:     getInt(getEnv("REDIRECT_PATH_LENGTH")),
 		MaxNumberOfEmailAlerts: getInt(getEnv("MAX_NUMBER_OF_EMAIL_ALERTS")),
-		RedirectUrlAfterSuccessfulEmailVerification: getEnv("REDIRECT_URL_AFTER_SUCCESSFUL_EMAIL_VERIFICATION"),
+		EmailVerifiedUrl:       getEnv("EMAIL_VERIFIED_URL"),
+		ErrorRedirectUrl:       getEnv("ERROR_REDIRECT_URL"),
 	}
 
 	baseUrl := getEnv("BASE_URL")
@@ -92,15 +93,15 @@ func allowAllOriginsForCORS(e *gin.Engine) {
 }
 
 type Controller struct {
-	TokenClient                                 TokenClient
-	Database                                    Database
-	Emailer                                     Emailer
-	ErrorRedirectUrl                            string
-	ConfirmationUri                             string
-	RedirectUrlAfterSuccessfulEmailVerification string
-	RedirectUri                                 string
-	RedirectPathLength                          int
-	MaxNumberOfEmailAlerts                      int
+	TokenClient            TokenClient
+	Database               Database
+	Emailer                Emailer
+	ErrorRedirectUrl       string
+	ConfirmationUri        string
+	EmailVerifiedUrl       string
+	RedirectUri            string
+	RedirectPathLength     int
+	MaxNumberOfEmailAlerts int
 }
 
 type Database interface {

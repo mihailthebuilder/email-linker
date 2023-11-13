@@ -156,5 +156,5 @@ func (r *Controller) VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusTemporaryRedirect, r.RedirectUrlAfterSuccessfulEmailVerification)
+	c.Redirect(http.StatusTemporaryRedirect, r.EmailVerifiedUrl)
 }
