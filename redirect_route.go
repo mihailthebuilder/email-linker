@@ -36,7 +36,7 @@ func (r *Controller) Redirect(c *gin.Context) {
 		log.Printf("fail to add link click for link with id %s: %s", record.LinkId, err)
 	}
 
-	if record.NumberOfTimesClicked == 0 {
+	if record.NumberOfTimesClicked < r.MaxNumberOfEmailAlerts {
 		subject := "LinkUp link clicked"
 		content_template := "LinkUp link for URL %s inside email with subject '%s' has just been clicked for the 1st time!"
 		content := fmt.Sprintf(content_template, record.RedirectUrl, record.EmailSubject)
