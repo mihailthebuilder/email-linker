@@ -41,6 +41,10 @@ func (r *Controller) Redirect(c *gin.Context) {
 		content_template := "LinkUp link %s has been clicked!"
 		content := fmt.Sprintf(content_template, fmt.Sprintf("%s/%s", r.RedirectUri, path))
 
+		if record.NumberOfTimesClicked == r.MaxNumberOfEmailAlerts-1 {
+			content = content + " This is the last email alert you'll receive for this link. Please contact mihailthebuilder@gmail.com if you wish to receive more alerts."
+		}
+
 		ser := SendEmailRequest{Email: record.UserEmail, Subject: subject, Content: content}
 		err = r.Emailer.SendEmail(ser)
 		if err != nil {
