@@ -40,7 +40,14 @@ func (r *Controller) Redirect(c *gin.Context) {
 		subject_template := "LinkUp link id %s clicked"
 		subject := fmt.Sprintf(subject_template, path)
 
-		content_template := "LinkUp link %s that redirects to %s has been clicked!"
+		var content_template string
+		if lengthOfString(record.Tag) > 0 {
+			content_template = fmt.Sprintf("LinkUp link with tag '%s' has been clicked!", record.Tag)
+			content_template = content_template + " The link's URL is %s and redirects to %s."
+		} else {
+			content_template = "LinkUp link %s that redirects to %s has been clicked!"
+		}
+
 		content := fmt.Sprintf(content_template, fmt.Sprintf("%s/%s", r.RedirectUri, path), record.RedirectUrl)
 
 		if record.NumberOfTimesClicked == r.MaxNumberOfEmailAlerts-1 {

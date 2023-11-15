@@ -77,10 +77,10 @@ func (r *Controller) TrackLink(c *gin.Context) {
 	url := addHttpsToUrlIfNotIncludedAlready(apiRequest.Url)
 
 	redirectRequest := AddRedirectRequest{
-		UserId:       userId,
-		Url:          url,
-		Path:         path,
-		EmailSubject: apiRequest.EmailSubject,
+		UserId: userId,
+		Url:    url,
+		Path:   path,
+		Tag:    apiRequest.Tag,
 	}
 
 	err = r.Database.AddRedirect(c, redirectRequest)
@@ -109,8 +109,8 @@ func getUserIdFromContext(c *gin.Context) (string, error) {
 }
 
 type TrackLinkRequest struct {
-	Url          string `json:"url"`
-	EmailSubject string `json:"emailSubject"`
+	Url string `json:"url" binding:"required"`
+	Tag string `json:"tag"`
 }
 
 const HTTP_PREFIX = "http://"

@@ -143,10 +143,10 @@ type UserRecordInDatabase struct {
 }
 
 type AddRedirectRequest struct {
-	UserId       string
-	Url          string
-	Path         string
-	EmailSubject string
+	UserId string
+	Url    string
+	Path   string
+	Tag    string
 }
 
 type LinkClickNotificationRequest struct {
@@ -157,7 +157,7 @@ type LinkClickNotificationRequest struct {
 type RedirectRecord struct {
 	RedirectUrl          string
 	UserEmail            string
-	EmailSubject         string
+	Tag                  string
 	NumberOfTimesClicked int
 	LinkId               string
 }

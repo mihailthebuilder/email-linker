@@ -91,10 +91,10 @@ func (p *Postgres) GetUser(ctx context.Context, email string) (ResultForGetUserR
 
 func (p *Postgres) AddRedirect(ctx context.Context, request AddRedirectRequest) error {
 	sql := `
-		INSERT INTO links (user_id, original_url, redirect_path, email_subject)
+		INSERT INTO links (user_id, original_url, redirect_path, tag)
 		VALUES ($1, $2, $3, $4)
 	`
-	tag, err := p.client.Exec(ctx, sql, request.UserId, request.Url, request.Path, request.EmailSubject)
+	tag, err := p.client.Exec(ctx, sql, request.UserId, request.Url, request.Path, request.Tag)
 
 	if err != nil {
 		return err
@@ -121,18 +121,18 @@ func (p *Postgres) GetRedirectUrl(ctx context.Context, path string) (string, err
 func (p *Postgres) GetRedirectRecord(ctx context.Context, path string) (RedirectRecord, error) {
 	record := RedirectRecord{}
 	sql := `
-		SELECT l.original_url, u.email, COUNT(c.click_id), l.email_subject, l.link_id
+		SELECT l.original_url, u.email, COUNT(c.click_id), l.tag, l.link_id
 			FROM links l
 			JOIN users u on l.user_id = u.user_id
 			LEFT JOIN clicks c on l.link_id = c.link_id
 		WHERE redirect_path = $1
-		GROUP BY l.original_url, u.email, l.email_subject, l.link_id
+		GROUP BY l.original_url, u.email, l.tag, l.link_id
 	`
 	err := p.client.QueryRow(ctx, sql, path).Scan(
 		&record.RedirectUrl,
 		&record.UserEmail,
 		&record.NumberOfTimesClicked,
-		&record.EmailSubject,
+		&record.Tag,
 		&record.LinkId,
 	)
 	return record, err
