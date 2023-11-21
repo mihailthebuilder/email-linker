@@ -36,8 +36,8 @@ func (r *Controller) Redirect(c *gin.Context) {
 		log.Printf("fail to add link click for link with id %s: %s", record.LinkId, err)
 	}
 
-	httpUserAgent := c.Request.Header.Get("HTTP_USER_AGENT")
-	log.Printf("HTTP_USER_AGENT is %s", httpUserAgent)
+	httpUserAgent := c.Request.Header.Get("User-Agent")
+	log.Printf("HTTP user agent is %s", httpUserAgent)
 
 	if record.NumberOfTimesClicked < r.MaxNumberOfEmailAlerts {
 		subject_template := "LinkUp link id %s clicked"
