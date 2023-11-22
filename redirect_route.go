@@ -31,17 +31,6 @@ func (r *Controller) Redirect(c *gin.Context) {
 		return
 	}
 
-	err = r.Database.AddLinkClick(c, record.LinkId)
-	if err != nil {
-		log.Printf("error adding link click for link with id %s: %s", record.LinkId, err)
-		return
-	}
-
-	if record.NumberOfTimesClicked > r.MaxNumberOfEmailAlerts {
-		log.Printf("didn't send email notification for link with id %s as number of clicks exceeded", record.LinkId)
-		return
-	}
-
 	ua := c.Request.Header.Get("User-Agent")
 	isPreview, err := r.BotChecker.IsLinkPreviewRequest(ua)
 	if err != nil {
@@ -50,7 +39,18 @@ func (r *Controller) Redirect(c *gin.Context) {
 	}
 
 	if isPreview {
-		log.Printf("didn't send email notification for link with id %s as it is preview request", record.LinkId)
+		log.Printf("not tracking redirect for link with id %s as it is preview request", record.LinkId)
+		return
+	}
+
+	err = r.Database.AddLinkClick(c, record.LinkId)
+	if err != nil {
+		log.Printf("error adding link click for link with id %s: %s", record.LinkId, err)
+		return
+	}
+
+	if record.NumberOfTimesClicked > r.MaxNumberOfEmailAlerts {
+		log.Printf("not sending email notification for link with id %s as number of clicks exceeded", record.LinkId)
 		return
 	}
 
