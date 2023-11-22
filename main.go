@@ -48,6 +48,7 @@ func runApplication() {
 		MaxNumberOfEmailAlerts: getInt(getEnv("MAX_NUMBER_OF_EMAIL_ALERTS")),
 		EmailVerifiedUrl:       getEnv("EMAIL_VERIFIED_URL"),
 		ErrorRedirectUrl:       getEnv("ERROR_REDIRECT_URL"),
+		BotChecker:             newBotChecker(),
 	}
 
 	baseUrl := getEnv("BASE_URL")
@@ -96,6 +97,7 @@ type Controller struct {
 	TokenClient            TokenClient
 	Database               Database
 	Emailer                Emailer
+	BotChecker             BotChecker
 	ErrorRedirectUrl       string
 	ConfirmationUri        string
 	EmailVerifiedUrl       string
@@ -160,4 +162,8 @@ type RedirectRecord struct {
 	Tag                  string
 	NumberOfTimesClicked int
 	LinkId               string
+}
+
+type BotChecker interface {
+	IsLinkPreviewRequest(userAgent string) (bool, error)
 }

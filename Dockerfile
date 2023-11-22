@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
-COPY *.go ./
+COPY *.go crawler-user-agents.json ./
 COPY migrations ./migrations/
 
 ENV GIN_MODE=release
