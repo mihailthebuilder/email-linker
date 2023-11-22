@@ -135,6 +135,9 @@ func (p *Postgres) GetRedirectRecord(ctx context.Context, path string) (Redirect
 		&record.Tag,
 		&record.LinkId,
 	)
+
+	record.Path = path
+
 	return record, err
 }
 

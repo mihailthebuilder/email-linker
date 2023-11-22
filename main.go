@@ -162,6 +162,7 @@ type RedirectRecord struct {
 	Tag                  string
 	NumberOfTimesClicked int
 	LinkId               string
+	Path                 string
 }
 
 type BotChecker interface {
