@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 )
@@ -34,14 +35,54 @@ type Bot struct {
 	Pattern string `json:"pattern"`
 }
 
-func (lpc *LinkPreviewChecker) IsLinkPreviewRequest(userAgent string) (bool, error) {
+var botIps = []string{
+	// linkedin message preview
+	"172.176.75.89",
+	"52.165.149.97",
+}
+
+func (lpc *LinkPreviewChecker) IsBotRequest(req *http.Request) (bool, error) {
+	if lpc.isBotBasedOnIp(req) {
+		log.Printf("redirect request url path %s coming from bot ip", req.URL.Path)
+		return true, nil
+	}
+
+	ua, err := lpc.isBotBasedOnUserAgent(req)
+	if err != nil {
+		return false, fmt.Errorf("error checking if request for url path %s is bot based on user agent: %s", req.URL.Path, err)
+	}
+
+	if ua {
+		log.Printf("redirect request url path %s coming from bot user-agent", req.URL.Path)
+	}
+
+	return ua, nil
+}
+
+func (lpc *LinkPreviewChecker) isBotBasedOnIp(req *http.Request) bool {
+	requestIps := req.Header.Values("X-Forwarded-For")
+
+	for _, requestIp := range requestIps {
+		for _, botIp := range botIps {
+			if requestIp == botIp {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (lpc *LinkPreviewChecker) isBotBasedOnUserAgent(req *http.Request) (bool, error) {
+	ua := req.Header.Get("User-Agent")
 	for _, bot := range lpc.Bots {
-		matched, err := regexp.Match(bot.Pattern, []byte(userAgent))
+		matched, err := regexp.Match(bot.Pattern, []byte(ua))
 		if err != nil {
-			return false, fmt.Errorf("error regexp.Match on pattern %s against userAgent %s: %s", bot.Pattern, userAgent, err)
+			return false, fmt.Errorf("error regexp.Match on pattern %s against userAgent %s: %s", bot.Pattern, ua, err)
 		}
 
 		if matched {
+			log.Printf("redirect request url %s identified as bot", req.URL)
 			return true, nil
 		}
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -166,5 +167,5 @@ type RedirectRecord struct {
 }
 
 type BotChecker interface {
-	IsLinkPreviewRequest(userAgent string) (bool, error)
+	IsBotRequest(req *http.Request) (bool, error)
 }
