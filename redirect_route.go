@@ -32,7 +32,7 @@ func (r *Controller) Redirect(c *gin.Context) {
 	}
 
 	ua := c.Request.Header.Get("User-Agent")
-	log.Printf("redirect request for link path %s has User-Agent: %s", record.Path, ua)
+	log.Printf("redirect request for link path %s has headers: %s", record.Path, c.Request.Header)
 
 	isPreview, err := r.BotChecker.IsLinkPreviewRequest(ua)
 	if err != nil {
