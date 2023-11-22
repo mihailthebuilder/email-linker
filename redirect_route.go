@@ -32,37 +32,37 @@ func (r *Controller) Redirect(c *gin.Context) {
 	}
 
 	ua := c.Request.Header.Get("User-Agent")
-	log.Printf("redirect request for link with id %s has User-Agent: %s", record.LinkId, ua)
+	log.Printf("redirect request for link path %s has User-Agent: %s", record.Path, ua)
 
 	isPreview, err := r.BotChecker.IsLinkPreviewRequest(ua)
 	if err != nil {
-		log.Printf("error checking if user-agent header %s is a preview request: %s", ua, err)
+		log.Printf("error checking if user-agent header %s is a preview request for link path %s: %s", ua, record.Path, err)
 		return
 	}
 
 	if isPreview {
-		log.Printf("not tracking redirect for link with id %s as it is preview request", record.LinkId)
+		log.Printf("not tracking redirect for link path %s as it is preview request", record.Path)
 		return
 	}
 
 	err = r.Database.AddLinkClick(c, record.LinkId)
 	if err != nil {
-		log.Printf("error adding link click for link with id %s: %s", record.LinkId, err)
+		log.Printf("error adding link click for link path %s: %s", record.Path, err)
 		return
 	}
 
 	if record.NumberOfTimesClicked > r.MaxNumberOfEmailAlerts {
-		log.Printf("not sending email notification for link with id %s as number of clicks exceeded", record.LinkId)
+		log.Printf("not sending email notification for link path %s as number of clicks exceeded", record.Path)
 		return
 	}
 
 	err = r.sendEmail(record)
 	if err != nil {
-		log.Printf("error notifying that link with id %s was clicked: %s", record.LinkId, err)
+		log.Printf("error notifying that link path %s was clicked: %s", record.Path, err)
 		return
 	}
 
-	log.Printf("sent email notification for link with id %s", record.LinkId)
+	log.Printf("sent email notification for link path %s", record.Path)
 }
 
 func (r *Controller) sendEmail(record RedirectRecord) error {
