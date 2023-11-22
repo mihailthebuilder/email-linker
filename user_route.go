@@ -13,21 +13,21 @@ import (
 func (r *Controller) SetAuthenticatedUser(c *gin.Context) {
 	token, err := getTokenFromRequest(c)
 	if err != nil {
-		log.Println("fail to fetch token:", err)
+		log.Println("error to fetch token:", err)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	userId, err := r.TokenClient.GetUserId(token)
 	if err != nil {
-		log.Println("fail to fetch user id from token:", err)
+		log.Println("error to fetch user id from token:", err)
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	exists, err := r.Database.UserIdExists(c, userId)
 	if err != nil {
-		log.Printf("fail to check if user id %s exists: %s", userId, err)
+		log.Printf("error to check if user id %s exists: %s", userId, err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -59,7 +59,7 @@ func getTokenFromRequest(c *gin.Context) (string, error) {
 func (r *Controller) TrackLink(c *gin.Context) {
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
-		log.Println("fail to get email from context: ", err)
+		log.Println("error getting email from context: ", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -67,7 +67,7 @@ func (r *Controller) TrackLink(c *gin.Context) {
 	apiRequest := TrackLinkRequest{}
 	err = c.ShouldBindJSON(&apiRequest)
 	if err != nil {
-		log.Println("fail to parse API request: ", err)
+		log.Println("error parsing API request: ", err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
